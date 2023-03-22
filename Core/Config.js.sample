@@ -1,0 +1,9 @@
+module.exports = class Config {
+    constructor() {
+        this.port = 8081;
+        this.api_token = "put your huggingface api token here";
+        this.savePath = './sttResult/';
+        this.modelPath ='./deepspeech/deepspeech-0.9.3-models.pbmm';
+        this.scorerPath = './deepspeech/deepspeech-0.9.3-models.scorer';
+    }
+}

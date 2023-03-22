@@ -1,0 +1,6 @@
+node_modules/
+Core/Config.js
+.history/
+sttResult/
+uploads/
+deepspeech/
