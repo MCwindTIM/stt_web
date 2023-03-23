@@ -59,4 +59,8 @@ module.exports = class WebServer {
     console.log(socketID)
     this.io.sockets.connected[socketID].emit('finish', { 'url': url});
   }
+
+  apiError(socketID){
+    this.io.sockets.connected[socketID].emit('error', { 'error': 'API Error'});
+  }
 };

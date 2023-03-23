@@ -15,6 +15,10 @@ socket.on('finish', function (data) {
     window.location.href = data.url;
 });
 
+socket.on('error', data => {
+    alert(data.error);
+})
+
 function submitForm(e) {
     e.preventDefault();
     const file = document.getElementById("files").files[0];

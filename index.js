@@ -60,7 +60,8 @@ class STTServer{
         );
         let APIresult = await response.json();
         //COMMENT: response: {"generated_text": "XXXXX"}
-        console.log(APIresult[0]);
+        console.log(APIresult);
+        if(!APIresult[0].generated_text) return this.WebServer.apiError(socketid);
 
         //COMMENT: save result in to txt 
         fs.writeFileSync(`${fileName}`, APIresult[0].generated_text, (err) => {
