@@ -4,6 +4,9 @@ const fs = require('fs');
 //COMMENT: fetch lib for huggingFace api query
 const fetch = require('node-fetch');
 
+//COMMENT: FFmpeg
+var ffmpeg = require('fluent-ffmpeg');
+
 //TODO: implement Config module
 const Config = require('./Core/Config.js');
 
@@ -13,18 +16,50 @@ class STTServer{
         //NOTE: Web interface
         this.WebServer = new WebServer(this);
     }
+
+    convert = (input, output, callback) => {
+        ffmpeg(input).output(output).on('end', ()=>{
+            console.log('Convert to WAV')
+            callback(null);
+        }).on('error', (err)=> {
+            console.log(err);
+            callback(err);
+        }).run();
+    }
     
     //TODO: This function need to clarify
     uploadFinish = (fileName, socketid) => {
-        let deepspeech = new DS(this);
-        if(deepspeech.setFilePath(fileName)){
-            //NOTE: check Audio file exists and no result file was generated
-            if(deepspeech.checkAudioFileExists()){
-                //NOTE: read audio file
-                if(deepspeech.readFile()){
-                    console.log(`[${deepspeech.getAudioFilePath()}] → [${deepspeech.getOutputFilePath()}]`)
-                    //NOTE: call pipeBuffer() function to process stt
-                    deepspeech.pipeBuffer(socketid);
+        //check file is wav
+        if(fileName.split('.').pop() != 'wav'){
+            //convert to wav
+            this.convert(`${this.config.uploadPath}${fileName}`, `${this.config.uploadPath}${fileName.split('.').shift()}.wav`, (err)=>{
+                if(err) return this.WebServer.apiError(socketid);
+                //update fileName
+                fileName = `${fileName.split('.').shift()}.wav`;
+                let deepspeech = new DS(this);
+                if(deepspeech.setFilePath(fileName)){
+                    //NOTE: check Audio file exists and no result file was generated
+                    if(deepspeech.checkAudioFileExists()){
+                        //NOTE: read audio file
+                        if(deepspeech.readFile()){
+                            console.log(`[${deepspeech.getAudioFilePath()}] → [${deepspeech.getOutputFilePath()}]`)
+                            //NOTE: call pipeBuffer() function to process stt
+                            deepspeech.pipeBuffer(socketid);
+                        }
+                    }
+                }
+            });
+        }else{
+            let deepspeech = new DS(this);
+            if(deepspeech.setFilePath(fileName)){
+                //NOTE: check Audio file exists and no result file was generated
+                if(deepspeech.checkAudioFileExists()){
+                    //NOTE: read audio file
+                    if(deepspeech.readFile()){
+                        console.log(`[${deepspeech.getAudioFilePath()}] → [${deepspeech.getOutputFilePath()}]`)
+                        //NOTE: call pipeBuffer() function to process stt
+                        deepspeech.pipeBuffer(socketid);
+                    }
                 }
             }
         }
@@ -43,28 +78,25 @@ class STTServer{
 
         //COMMENT: huggingface api query
         let response = await fetch(
-            "https://api-inference.huggingface.co/models/vennify/t5-base-grammar-correction",
+            this.config.modelAPI,
             {
-                headers: { Authorization: `Bearer ${this.config.api_token}` },
+                // headers: {},
                 method: "POST",
                 body: JSON.stringify({
-                    "inputs": `${result}`,
-                    "options":  {
-                        "wait_for_model":true
-                    },
-                    "parameters": {
-                        "max_length": 256
-                    }
+                    "text": result,
                 }),
             }   
         );
         let APIresult = await response.json();
-        //COMMENT: response: {"generated_text": "XXXXX"}
+        //COMMENT: response: {
+        //   Recieved: 'He were moving there',
+        //   Model_Output: [ 'He was moving there.', 'He were moving there.' ]
+        // }
         console.log(APIresult);
-        if(!APIresult[0].generated_text) return this.WebServer.apiError(socketid);
+        if(!APIresult.output) return this.WebServer.apiError(socketid);
 
         //COMMENT: save result in to txt 
-        fs.writeFileSync(`${fileName}`, APIresult[0].generated_text, (err) => {
+        fs.writeFileSync(`${fileName}`, APIresult.output.join('\n'), (err) => {
             if(err) return console.log(err);
         });
         

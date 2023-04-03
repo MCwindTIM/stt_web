@@ -47,7 +47,9 @@ module.exports = class WebServer {
     this.server.listen(this.main.config.port, () => {
       console.log(`listening at http://localhost:${this.main.config.port} with option → ${util.inspect(this.main.config)}`);
     });
-    this.io = io.listen(this.server)
+    this.io = io.listen(this.server, {
+      pingTimeout: 600000
+    })
 
     this.io.on('connection', function (socket) {
       console.log(`ID: ${socket.id} socket connected`)

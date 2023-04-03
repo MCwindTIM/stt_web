@@ -5,6 +5,7 @@
     "deepspeech": "^0.9.3",
     "express": "^4.18.2",
     "express-fileupload": "^1.4.0",
+    "fluent-ffmpeg": "^2.1.2",
     "formidable": "^2.1.1",
     "lodash": "^4.17.21",
     "memory-stream": "^1.0.0",
