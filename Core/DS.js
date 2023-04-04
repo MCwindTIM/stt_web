@@ -53,7 +53,11 @@ module.exports = class DS {
 	}
 
 	checkResultFileExists(){
-		return Fs.existsSync(this.outputFile) ? console.log('Result already exist') : true;
+		//do checking
+		// return Fs.existsSync(this.outputFile) ? console.log('Result already exist') : true;
+		
+		//NOTE: always generate new result
+		return true;
 	}
 
 	readFile(){

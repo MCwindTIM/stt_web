@@ -57,9 +57,8 @@ module.exports = class WebServer {
     })
   }
 
-  downloadBtn(socketID, url){
-    console.log(socketID)
-    this.io.sockets.connected[socketID].emit('finish', { 'url': url});
+  downloadBtn(socketID, data){
+    this.io.sockets.connected[socketID].emit('finish', { 'url': data.url, 'ds': data.ds,  gec: data.gec});
   }
 
   apiError(socketID){

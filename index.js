@@ -101,8 +101,7 @@ class STTServer{
         });
         
         //TODO: update web interface
-        console.log(socketid);
-        this.WebServer.downloadBtn(socketid, `${fileName}`)
+        this.WebServer.downloadBtn(socketid, {url: fileName, ds: result, gec: APIresult.output})
         return APIresult;
     }
 }
