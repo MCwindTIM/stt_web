@@ -23,13 +23,19 @@ socket.on('finish', function (data) {
     document.getElementById("T5GECTextBox").textContent = data.gec.join("\n\n");
 });
 
-socket.on('error', data => {
-    alert(data.error);
+socket.on('info', data => {
+    document.getElementById("files").disabled = false;
+    document.getElementById("submit").disabled = false;
+    document.getElementById("submit").style.background = "rgb(37, 83, 3)";
+    document.getElementById("submit").textContent = "Upload";
+    alert(JSON.stringify(data.info, null, 4));
 })
 
 function submitForm(e) {
     e.preventDefault();
     const file = document.getElementById("files").files[0];
+    //check not selecting file
+    if (!file) return alert("Please select a file");
     const formData = new FormData();
     formData.append("sttTarget", file);
     //disable btn

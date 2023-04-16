@@ -54,6 +54,10 @@ module.exports = class WebServer {
     this.io.on('connection', function (socket) {
       console.log(`ID: ${socket.id} socket connected`)
       socket.emit('id', { 'id': `${socket.id}`});
+
+      socket.on('disconnect', ()=> {
+        console.log(`ID: ${socket.id} socket disconnected`)
+      })
     })
   }
 
@@ -61,7 +65,8 @@ module.exports = class WebServer {
     this.io.sockets.connected[socketID].emit('finish', { 'url': data.url, 'ds': data.ds,  gec: data.gec});
   }
 
-  apiError(socketID){
-    this.io.sockets.connected[socketID].emit('error', { 'error': 'API Error'});
+  apiError(socketID, info){
+    if(!this.io.sockets.connected[socketID]) return;
+    this.io.sockets.connected[socketID].emit('info', { 'info': info});
   }
 };
